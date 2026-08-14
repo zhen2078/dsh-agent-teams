@@ -1,0 +1,446 @@
+/**
+ * 财神鲸抽奖专场 full-screen overlay theme. Red/gold festive skin with a
+ * spinning prize wheel, replacing the plain activity floater body while the
+ * panel is open. Colors are hardcoded (theme intent) rather than reading the
+ * host's neutral design tokens.
+ */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: radial-gradient(120% 120% at 50% 40%, rgba(40, 0, 4, 0.55), rgba(0, 0, 0, 0.72));
+  backdrop-filter: blur(6px);
+  animation: lotteryFade 200ms ease;
+}
+
+@keyframes lotteryFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.stage {
+  position: relative;
+  overflow: hidden;
+  width: min(1180px, 94vw);
+  max-height: 92vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 440px;
+  gap: 20px;
+  padding: 36px 40px;
+  border-radius: 28px;
+  border: 2px solid #f4c430;
+  color: #fff6e5;
+  background:
+    radial-gradient(90% 120% at 12% 8%, #d51f2b 0%, #a5121d 46%, #7d0a15 100%);
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.55),
+    inset 0 0 60px rgba(255, 196, 64, 0.12);
+  animation: lotteryPop 260ms cubic-bezier(0.16, 0.84, 0.34, 1);
+}
+
+@keyframes lotteryPop {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.stage[data-won='true'] {
+  border-color: #ffe07a;
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.55),
+    0 0 0 3px rgba(255, 214, 128, 0.5),
+    inset 0 0 90px rgba(255, 200, 60, 0.22);
+  animation: lotteryPop 260ms cubic-bezier(0.16, 0.84, 0.34, 1), lotteryWinGlow 1.8s ease-in-out infinite;
+}
+
+@keyframes lotteryWinGlow {
+  0%, 100% { box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55), 0 0 0 3px rgba(255, 214, 128, 0.5), inset 0 0 90px rgba(255, 200, 60, 0.22); }
+  50% { box-shadow: 0 30px 110px rgba(0, 0, 0, 0.55), 0 0 0 5px rgba(255, 224, 122, 0.85), inset 0 0 130px rgba(255, 210, 80, 0.35); }
+}
+
+/* Radial burst behind the stage content on a win. */
+.winGlow {
+  position: absolute;
+  inset: -20%;
+  z-index: 0;
+  background: radial-gradient(closest-side, rgba(255, 214, 120, 0.4), transparent 70%);
+  pointer-events: none;
+  animation: lotteryBurst 1.6s ease-in-out infinite;
+}
+
+@keyframes lotteryBurst {
+  0%, 100% { opacity: 0.5; transform: scale(0.96); }
+  50% { opacity: 0.9; transform: scale(1.02); }
+}
+
+/* Decorative whale mascot bleeding from the lower-right. */
+.whale {
+  position: absolute;
+  right: 30%;
+  bottom: -8%;
+  width: 42%;
+  height: 116%;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: contain;
+  opacity: 0.22;
+  filter: saturate(1.2) drop-shadow(0 8px 20px rgba(0, 0, 0, 0.4));
+  pointer-events: none;
+}
+
+.closeX {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  z-index: 3;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(255, 214, 128, 0.5);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.18);
+  color: #ffe6b0;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 120ms ease, transform 120ms ease;
+}
+
+.closeX:hover { background: rgba(0, 0, 0, 0.32); transform: scale(1.06); }
+
+/* ---- Left column ---- */
+.left {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.brand {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #ffd873;
+  text-shadow: 0 1px 6px rgba(120, 0, 0, 0.6);
+}
+
+.title {
+  margin-top: 10px;
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 1.1;
+  color: #fff;
+  text-shadow: 0 2px 0 #7d0a15, 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.title em {
+  font-style: normal;
+  color: #ffd200;
+}
+
+.subtitle {
+  margin-top: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffe0c2;
+}
+
+.resultBox {
+  margin-top: 22px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px dashed rgba(255, 214, 128, 0.55);
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.resultLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffcf6b;
+}
+
+.resultValue {
+  margin-top: 6px;
+  font-size: 24px;
+  font-weight: 800;
+  color: #fff;
+}
+
+/* ---- Progress ---- */
+.progress {
+  margin-top: 22px;
+  padding: 18px 20px 8px;
+  border-radius: 16px;
+  background: rgba(90, 6, 12, 0.5);
+  border: 1px solid rgba(255, 196, 64, 0.28);
+}
+
+.progressHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.progressName { font-size: 16px; font-weight: 800; color: #fff; }
+.progressPct { font-size: 20px; font-weight: 900; color: #ffd200; }
+
+.progressTrack {
+  margin-top: 10px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ffd200, #ff8a1e);
+  box-shadow: 0 0 12px rgba(255, 180, 40, 0.6);
+  transition: width 600ms cubic-bezier(0.16, 0.84, 0.34, 1);
+}
+
+.rows {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  padding: 12px 0 14px;
+  border-top: 1px solid rgba(255, 214, 128, 0.16);
+}
+
+.row:first-child { border-top: none; }
+
+.rowHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rowLabel {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff5e6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rowStatus { font-size: 14px; font-weight: 700; color: #ffcf6b; white-space: nowrap; }
+.row[data-tone='active'] .rowStatus { color: #ffe07a; }
+.row[data-tone='done'] .rowStatus { color: #8affc1; }
+.row[data-tone='failed'] .rowStatus { color: #ff9aa2; }
+
+.rowTrack {
+  margin-top: 8px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.rowFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ffca3a, #ff7a1e);
+  transition: width 600ms ease;
+}
+
+.row[data-tone='done'] .rowFill { background: linear-gradient(90deg, #38d996, #12b981); }
+.row[data-tone='failed'] .rowFill { background: linear-gradient(90deg, #ff6b74, #d93a44); }
+
+/* ---- Footer ---- */
+.footer {
+  margin-top: auto;
+  padding-top: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.giveup {
+  border: none;
+  background: none;
+  color: #ffe0c2;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+  transition: color 120ms ease;
+}
+
+.giveup:hover { color: #fff; }
+
+.disclaimer { font-size: 12px; color: rgba(255, 224, 194, 0.6); }
+
+.winCta {
+  padding: 12px 26px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ffd200, #ff8a1e);
+  color: #7d0a15;
+  font-size: 17px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(255, 160, 40, 0.5);
+  animation: lotteryCta 1.4s ease-in-out infinite;
+}
+
+.winCta:hover { filter: brightness(1.05); }
+
+@keyframes lotteryCta {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+/* ---- Right column: wheel ---- */
+.right {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.wheelWrap {
+  position: relative;
+  width: 360px;
+  height: 360px;
+}
+
+.pointer {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  z-index: 4;
+  width: 0;
+  height: 0;
+  transform: translateX(-50%);
+  border-left: 16px solid transparent;
+  border-right: 16px solid transparent;
+  border-top: 26px solid #ffd200;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.5));
+}
+
+.wheel {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  padding: 12px;
+  background: linear-gradient(135deg, #ffe07a, #f4c430 45%, #b8860b);
+  box-shadow:
+    0 0 0 4px rgba(255, 214, 128, 0.35),
+    0 18px 46px rgba(0, 0, 0, 0.5);
+}
+
+.wheelInner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  transition: transform 3.8s cubic-bezier(0.16, 0.84, 0.34, 1);
+}
+
+.seg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50%;
+  transform-origin: left center;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 22px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #7d0a15;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+}
+
+.segLabel {
+  max-width: 96px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seg[data-kind='prize'] { color: #5a0710; }
+
+.hub {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 5;
+  width: 108px;
+  height: 108px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 4px solid #fff2cc;
+  background: radial-gradient(circle at 50% 38%, #ff4d4d, #c1121f 70%);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.2;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5), inset 0 0 14px rgba(255, 220, 150, 0.5);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.hub:hover:not(:disabled) { transform: translate(-50%, -50%) scale(1.05); }
+.hub:active:not(:disabled) { transform: translate(-50%, -50%) scale(0.96); }
+.hub:disabled { cursor: default; opacity: 0.85; }
+
+.hub[data-won='true'] {
+  background: radial-gradient(circle at 50% 38%, #ffe07a, #f0a500 72%);
+  color: #7d0a15;
+  opacity: 1;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5), inset 0 0 18px rgba(255, 255, 255, 0.55), 0 0 26px rgba(255, 210, 90, 0.8);
+}
+
+.hubText { display: block; }
+
+.draws { font-size: 15px; font-weight: 800; color: #ffd873; }
+.draws b { color: #fff; font-size: 18px; }
+
+.toast {
+  min-height: 22px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(120, 0, 0, 0.7);
+}
+
+.toast[data-won='true'] {
+  font-size: 18px;
+  color: #ffe07a;
+  text-shadow: 0 1px 10px rgba(255, 180, 40, 0.7);
+}
+
+.poolHint { font-size: 12px; color: rgba(255, 224, 194, 0.6); }
+
+/* ---- Narrow viewport: stack ---- */
+@media (max-width: 860px) {
+  .stage {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 26px 22px;
+    gap: 16px;
+    overflow-y: auto;
+  }
+  .whale { display: none; }
+  .title { font-size: 30px; }
+  .wheelWrap { width: 300px; height: 300px; }
+}

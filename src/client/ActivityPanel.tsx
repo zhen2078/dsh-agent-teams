@@ -26,6 +26,7 @@ import { activityPanelExpandedForSession, relatedTaskIds, taskStages } from './a
 import { ACTION_ART, LEAD_ART, memberArtUrl } from './artwork.ts'
 import { OPEN_PANEL_EVENT } from './AgentTeamsCard.tsx'
 import type { AgentTeamsCardData } from './agent-teams-card-definition.ts'
+import { LotteryPanel } from './LotteryPanel.tsx'
 import css from './ActivityPanel.module.css'
 
 /** Poll cadence for the host snapshot route. */
@@ -589,6 +590,10 @@ export function ActivityPanel({ sessionsList, openSession }: {
   )
   const hasTeams = visibleCount > 0
 
+  // The lottery overlay themes a single primary team: prefer a live team, then
+  // a restored archived team for the owning conversation.
+  const primaryTeam = visibleTeams[0] ?? visibleArchived[0] ?? null
+
   if (!hasTeams && !expanded) return null
 
   return (
@@ -600,80 +605,8 @@ export function ActivityPanel({ sessionsList, openSession }: {
           setOpen(true)
         }} />
       )}
-      {expanded && (
-        <aside className={css.panel} data-agent-teams-activity>
-          <header className={css.panelHead}>
-            <span className={css.panelTitle}>
-              AgentTeams 活动
-              <span className={css.panelDot} data-busy={busy} aria-hidden />
-            </span>
-            <button
-              type="button"
-              className={css.closeButton}
-              onClick={() => {
-                setOpen(false)
-                setOpenOwner(undefined)
-              }}
-              aria-label="关闭"
-            >
-              <IconCloseOutline16 />
-            </button>
-          </header>
-          <div className={css.teams}>
-            {visibleCount === 0
-              ? <span className={css.emptyHint}>暂无团队活动</span>
-              : (
-                <>
-                  {visibleTeams.map((team) => (
-                    <TeamSection key={team.teamId} team={team} onNavigate={navigateToSession} />
-                  ))}
-                  {visibleArchived.map((team) => (
-                    <div key={`${team.captainSessionId}:${team.teamId}`} data-team-id={team.teamId} data-historic className={css.archivedWrap}>
-                      <TeamSection team={team} onNavigate={navigateToSession} historic />
-                    </div>
-                  ))}
-                  {visibleHistoric.map(({ data: team, owner }) => {
-                    const teamKey = `${owner}:${team.teamId}`
-                    return (
-                    <section key={teamKey} className={css.team} data-team-id={team.teamId} data-historic>
-                      <header className={css.teamHead}>
-                        <span className={css.teamName} title={team.teamName}>
-                          <img className={css.leadAvatar} src={LEAD_ART} alt="" aria-hidden /> {team.teamName}
-                        </span>
-                        <span className={css.historicPill}>已结束</span>
-                      </header>
-                      <div className={css.members}>
-                        {team.members.map((member) => (
-                          <button
-                            type="button"
-                            key={member.id}
-                            className={css.memberRow}
-                            data-activity="idle"
-                            onClick={() => { if (member.id !== '') navigateToSession(member.id as SessionId) }}
-                          >
-                            <span className={css.memberAvatar}>
-                              {memberArtUrl(member.name, member.role) !== null ? (
-                                <img className={css.memberArt} src={memberArtUrl(member.name, member.role) ?? ''} alt="" aria-hidden />
-                              ) : (
-                                <span className={css.memberInitial} style={{ background: accentOf(member.id) }}>{memberInitial(member.name)}</span>
-                              )}
-                            </span>
-                            <span className={css.memberInfo}>
-                              <span className={css.memberLine}>
-                                <span className={css.memberName}>{member.name}</span>
-                                {member.role !== '' && <span className={css.memberRole}>{member.role}</span>}
-                              </span>
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    </section>
-                    )
-                  })}
-                </>
-              )}
-          </div>
-        </aside>
+      {expanded && primaryTeam !== null && (
+        <LotteryPanel team={primaryTeam} onClose={() => { setOpen(false); setOpenOwner(undefined) }} />
       )}
     </>
   )
